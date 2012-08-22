@@ -14,11 +14,7 @@ Ermöglich die Bearbeitung des robots.txt Inhalts um weitere Direktiven hinzuzuf
 
 Für Webauftritte ist es zuzeiten sinvoll die Indexierung von bestimmte Dateien und Verzeichnisse zu vermeiden. Beispielweise, wenn es sich um Dateien handelt, die nicht relevante Inhalte haben. Um das zu ermöglichen, muß man eine Textdatei mit dem Namen "robots.txt" erstellen und diese im Stammverzeichnis der Webauftrittedomain hinzufügen, so daß die Robots (googlebot, msnbot, etc.) sie finden.
 
-Für Webauftritte auf Basis WordPress der robots.txt Inhalt wird dynamisch erzeugt. So wenn man der Link http://www.domain.de/robots.txt aufruft bekommt man die Ausgabe:
-
-User-agent: *
-Disallow: /wp-admin/
-Disallow: /wp-includes/
+Für Webauftritte auf Basis WordPress der robots.txt Inhalt wird dynamisch erzeugt.
 
 Das RRZE-Robots-Txt Plugin ermöglich die Bearbeitung des robots.txt Inhalts um weitere Direktiven hinzuzufügen.
 
