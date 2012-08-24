@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: RRZE-Robots-Txt\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-08-16 12:48+0100\n"
+"POT-Creation-Date: 2012-08-23 17:30+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: RRZE-Webteam\n"
@@ -16,25 +16,25 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-#: ../rrze-robots-txt.php:65
+#: ../rrze-robots-txt.php:78
 #, php-format
 msgid "Ihre PHP-Version %s ist veraltet. Bitte aktualisieren Sie mindestens auf die PHP-Version %s."
 msgstr ""
 
-#: ../rrze-robots-txt.php:69
+#: ../rrze-robots-txt.php:82
 #, php-format
 msgid "Ihre Wordpress-Version %s ist veraltet. Bitte aktualisieren Sie mindestens auf die Wordpress-Version %s."
 msgstr ""
 
-#: ../rrze-robots-txt.php:101
+#: ../rrze-robots-txt.php:114
 msgid "Inhalt der Datei robots.txt"
 msgstr ""
 
-#: ../rrze-robots-txt.php:111
+#: ../rrze-robots-txt.php:124
 msgid "Hinweis: Löschen Sie den Inhalt und speichern Sie die Änderungen, um die Standardeinstellungen wieder herzustellen."
 msgstr ""
 
-#: ../rrze-robots-txt.php:119
+#: ../rrze-robots-txt.php:132
 msgid "Inhalt der Datei robots.txt wieder auf die Standardwerte."
 msgstr ""
 

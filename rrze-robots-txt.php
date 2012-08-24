@@ -2,7 +2,7 @@
 /**
  * Plugin Name: RRZE-Robots-Txt
  * Description: Ermöglich die Bearbeitung der robots.txt Inhalt um weitere Direktiven hinzuzufügen.
- * Version: 1.0
+ * Version: 1.1
  * Author: rvdforst
  * Author URI: http://blogs.fau.de/webworking/
  * License: GPLv2 or later
@@ -26,13 +26,13 @@
 
 class RRZE_Robots_Txt {
 
-    const version = '1.0'; // Plugin-Version
+    const version = '1.1'; // Plugin-Version
     
     const option_name = '_rrze_robots_txt';
 
     const version_option_name = '_rrze_robots_txt_version';
     
-    private $options;
+    const textdomain = '_rrze_robots_txt';
     
     const php_version = '5.2.4'; // Minimal erforderliche PHP-Version
     
@@ -43,7 +43,9 @@ class RRZE_Robots_Txt {
         if( get_option( 'blog_public' ) == 0 )
             return;
 
-        load_plugin_textdomain( self::option_name, false, sprintf( '%slang', plugin_dir_path( __FILE__ ) ) );
+        load_plugin_textdomain( self::textdomain, false, sprintf( '%slang', plugin_dir_path( __FILE__ ) ) );
+        
+        add_action( 'init', array( __CLASS__, 'update_version' ) );
                                 
         add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
 
@@ -75,11 +77,11 @@ class RRZE_Robots_Txt {
         $error = '';
         
         if ( version_compare( PHP_VERSION, self::php_version, '<' ) ) {
-            $error = sprintf( __('Ihre PHP-Version %s ist veraltet. Bitte aktualisieren Sie mindestens auf die PHP-Version %s.', '_rrze'), PHP_VERSION, self::php_version );
+            $error = sprintf( __('Ihre PHP-Version %s ist veraltet. Bitte aktualisieren Sie mindestens auf die PHP-Version %s.', self::textdomain ), PHP_VERSION, self::php_version );
         }
 
         if ( version_compare( $GLOBALS['wp_version'], self::wp_version, '<' ) ) {
-            $error = sprintf( __('Ihre Wordpress-Version %s ist veraltet. Bitte aktualisieren Sie mindestens auf die Wordpress-Version %s.', '_rrze'), $GLOBALS['wp_version'], self::wp_version );
+            $error = sprintf( __('Ihre Wordpress-Version %s ist veraltet. Bitte aktualisieren Sie mindestens auf die Wordpress-Version %s.', self::textdomain ), $GLOBALS['wp_version'], self::wp_version );
         }
 
         if( ! empty( $error ) ) {
@@ -87,6 +89,11 @@ class RRZE_Robots_Txt {
             wp_die( $error );
         }
         
+    }
+    
+    public static function update_version() {
+		if( get_option( self::version_option_name, null) != self::version )
+			update_option( self::version_option_name , self::version );
     }
     
     private static function get_options( $key = '' ) {
@@ -111,7 +118,7 @@ class RRZE_Robots_Txt {
     
     public function settings_init() {
         register_setting( 'privacy', self::option_name, array( __CLASS__, 'options_validate' ) );
-        add_settings_field( self::option_name, __( 'Inhalt der Datei robots.txt', '_rrze' ), array( __CLASS__, 'field_robots_txt_callback' ), 'privacy', 'default', array( 'label_for' => 'robots_txt' ) );
+        add_settings_field( self::option_name, __( 'Inhalt der Datei robots.txt', self::textdomain ), array( __CLASS__, 'field_robots_txt_callback' ), 'privacy', 'default', array( 'label_for' => 'robots_txt' ) );
     }
     
     public function field_robots_txt_callback() {
@@ -121,7 +128,7 @@ class RRZE_Robots_Txt {
         ?>
         <textarea class="large-text code" id="<?php printf( '%s-content', self::option_name ); ?>" name="<?php printf( '%s[content]', self::option_name ); ?>" cols="50" rows="10"><?php echo esc_html( $content ); ?></textarea>
         <p class="description">
-            <?php _e( 'Hinweis: Löschen Sie den Inhalt und speichern Sie die Änderungen, um die Standardeinstellungen wieder herzustellen.', '_rrze' ); ?>
+            <?php _e( 'Hinweis: Löschen Sie den Inhalt und speichern Sie die Änderungen, um die Standardeinstellungen wieder herzustellen.', self::textdomain ); ?>
         </p>
         <?php
     }
@@ -129,7 +136,7 @@ class RRZE_Robots_Txt {
     public static function options_validate( $input ) {
         if( empty( $input['content'] ) ) {
             $options['content'] = self::default_content();
-            add_settings_error( self::option_name, 'default-robots-txt', __( 'Inhalt der Datei robots.txt wieder auf die Standardwerte.', '_rrze' ), 'updated' );
+            add_settings_error( self::option_name, 'default-robots-txt', __( 'Inhalt der Datei robots.txt wieder auf die Standardwerte.', self::textdomain ), 'updated' );
         } else {
             $options['content'] = esc_html( strip_tags( $input['content'] ) );
         }

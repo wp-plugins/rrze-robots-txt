@@ -3,7 +3,7 @@ Contributors: rvdforst
 Tags: robots, privacy
 Requires at least: 3.4
 Tested up to: 3.4
-Stable tag: 1.0
+Stable tag: 1.1
 License: GPLv2 or later
 
 Ermöglich die Bearbeitung des robots.txt Inhalts um weitere Direktiven hinzuzufügen.
@@ -17,6 +17,13 @@ Für Webauftritte ist es zuzeiten sinvoll die Indexierung von bestimmte Dateien 
 Für Webauftritte auf Basis WordPress der robots.txt Inhalt wird dynamisch erzeugt.
 
 Das RRZE-Robots-Txt Plugin ermöglich die Bearbeitung des robots.txt Inhalts um weitere Direktiven hinzuzufügen.
+
+
+
+== Changelog ==
+
+= 1.1 =
+* Textdomain aktualiziert
 
 
 
