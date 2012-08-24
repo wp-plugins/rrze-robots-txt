@@ -23,7 +23,7 @@ Das RRZE-Robots-Txt Plugin ermöglich die Bearbeitung des robots.txt Inhalts um 
 == Changelog ==
 
 = 1.1 =
-* Textdomain aktualiziert
+* Textdomain aktualisiert
 
 
 
