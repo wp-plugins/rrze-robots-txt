@@ -1,18 +1,22 @@
-=== RRZE-Sitemap ===
+=== RRZE-Robots-Txt ===
 Contributors: rvdforst
-Tags: sitemap
+Tags: robots, privacy
 Requires at least: 3.4
 Tested up to: 3.4
 Stable tag: 1.1
 License: GPLv2 or later
 
-Automatische Generierung eines XML-Sitemap. Multisite kompatibel.
+Ermöglich die Bearbeitung des robots.txt Inhalts um weitere Direktiven hinzuzufügen.
 
 
 
 == Description ==
 
-Einfache Lösung für Ihr Webauftritt, um automatisch alle Seiten, Artikel, Archive, Kategorien und Tags in einen XML-Sitemap zu erstellen.
+Für Webauftritte ist es zuzeiten sinvoll die Indexierung von bestimmte Dateien und Verzeichnisse zu vermeiden. Beispielweise, wenn es sich um Dateien handelt, die nicht relevante Inhalte haben. Um das zu ermöglichen, muß man eine Textdatei mit dem Namen "robots.txt" erstellen und diese im Stammverzeichnis der Webauftrittedomain hinzufügen, so daß die Robots (googlebot, msnbot, etc.) sie finden.
+
+Für Webauftritte auf Basis WordPress der robots.txt Inhalt wird dynamisch erzeugt.
+
+Das RRZE-Robots-Txt Plugin ermöglich die Bearbeitung des robots.txt Inhalts um weitere Direktiven hinzuzufügen.
 
 
 
@@ -25,4 +29,4 @@ Einfache Lösung für Ihr Webauftritt, um automatisch alle Seiten, Artikel, Arch
 
 == Screenshots ==
 
-1. Sitemap-Einstellungen
+1. Privatsphäre-Einstellungen
