@@ -3,7 +3,7 @@ Contributors: rvdforst
 Tags: robots, privacy
 Requires at least: 3.4
 Tested up to: 3.4
-Stable tag: 1.1
+Stable tag: 1.2
 License: GPLv2 or later
 
 Ermöglich die Bearbeitung des robots.txt Inhalts um weitere Direktiven hinzuzufügen.
@@ -21,6 +21,9 @@ Das RRZE-Robots-Txt Plugin ermöglich die Bearbeitung des robots.txt Inhalts um 
 
 
 == Changelog ==
+
+= 1.2 =
+* Multisite mit Unterordner kompatibel 
 
 = 1.1 =
 * Textdomain aktualisiert

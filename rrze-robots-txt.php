@@ -2,7 +2,7 @@
 /**
  * Plugin Name: RRZE-Robots-Txt
  * Description: Ermöglich die Bearbeitung der robots.txt Inhalt um weitere Direktiven hinzuzufügen.
- * Version: 1.1
+ * Version: 1.2
  * Author: rvdforst
  * Author URI: http://blogs.fau.de/webworking/
  * License: GPLv2 or later
@@ -26,7 +26,7 @@
 
 class RRZE_Robots_Txt {
 
-    const version = '1.1'; // Plugin-Version
+    const version = '1.2'; // Plugin-Version
     
     const option_name = '_rrze_robots_txt';
 
@@ -39,6 +39,9 @@ class RRZE_Robots_Txt {
     const wp_version = '3.4.1'; // Minimal erforderliche WordPress-Version
     
     public static function init() {
+        
+        if( is_multisite() && ! is_subdomain_install() && ! self::is_base_site() )
+            return;
         
         if( get_option( 'blog_public' ) == 0 )
             return;
@@ -101,7 +104,7 @@ class RRZE_Robots_Txt {
             'content' => ''
         );
 
-        $options = (array) get_option( self::option_name );    
+        $options = (array) get_option( self::option_name );
         $options = wp_parse_args( $options, $defaults );
         $options = array_intersect_key( $options, $defaults );
 
@@ -122,9 +125,9 @@ class RRZE_Robots_Txt {
     }
     
     public function field_robots_txt_callback() {
-        $content = self::get_options( 'content' );
+        $content = rtrim( self::get_options( 'content' ) );
         if( empty( $content ) ) 
-            $content = self::default_content();
+            $content = is_multisite() && ! is_subdomain_install() ? self::default_network_content () : self::default_site_content();
         ?>
         <textarea class="large-text code" id="<?php printf( '%s-content', self::option_name ); ?>" name="<?php printf( '%s[content]', self::option_name ); ?>" cols="50" rows="10"><?php echo esc_html( $content ); ?></textarea>
         <p class="description">
@@ -134,32 +137,66 @@ class RRZE_Robots_Txt {
     }
 
     public static function options_validate( $input ) {
-        if( empty( $input['content'] ) ) {
-            $options['content'] = self::default_content();
-            add_settings_error( self::option_name, 'default-robots-txt', __( 'Inhalt der Datei robots.txt wieder auf die Standardwerte.', self::textdomain ), 'updated' );
-        } else {
-            $options['content'] = esc_html( strip_tags( $input['content'] ) );
+        $content = '';
+        
+        if( isset( $input['content'] ) )
+            $content = rtrim( $input['content'] );
+        
+        if( empty( $content ) ) {
+            $content = is_multisite() && ! is_subdomain_install() ? self::default_network_content () : self::default_site_content();
+            add_settings_error( self::option_name, 'default-robots-txt', __( 'Inhalt der Datei robots.txt wieder auf die Standardwerte.', self::textdomain ), 'updated' );            
         }
-        return $options;
+        
+        $input['content'] = $content;
+        
+        return $input;
     }
     
     public static function robots_txt_filter( $robots_txt, $public ) {
-        $content = self::get_options( 'content' );
+        $content = rtrim( self::get_options( 'content' ) );
         if( ! empty( $content ) && $public != 0 ) {
             $robots_txt = esc_attr( strip_tags( $content ) );
         }
         return $robots_txt;        
     }
     
-    private static function default_content( ) {
-        $content = "User-agent: *\n";
-        $site_url = parse_url( site_url() );
-        $path = ( !empty( $site_url['path'] ) ) ? $site_url['path'] : '';
-        $content .= "Disallow: $path/wp-admin/\n";
-        $content .= "Disallow: $path/wp-includes/\n";
+    private static function default_site_content( ) {
+        $content = sprintf( 'User-agent: *%s', PHP_EOL );
+        
+        $path = rtrim( parse_url( site_url(), PHP_URL_PATH ), '/' );
+        if( empty( $path ) )
+            $path = '';
+        
+        $content .= sprintf( 'Disallow: %s/wp-admin/%s', $path, PHP_EOL );
+        $content .= sprintf( 'Disallow: %s/wp-includes/%s', $path, PHP_EOL );
+        
         return $content;
     }
      
+    private static function default_network_content( ) {
+        $content = sprintf( 'User-agent: *%s', PHP_EOL );
+        
+        $path = rtrim( parse_url( network_site_url(), PHP_URL_PATH ), '/' );
+        if( empty( $path ) )
+            $path = '';
+        
+        $content .= sprintf( 'Disallow: %s/wp-admin/%s', $path, PHP_EOL );
+        $content .= sprintf( 'Disallow: %s/wp-includes/%s', $path, PHP_EOL );
+        $content .= sprintf( 'Disallow: %s/*/wp-admin/%s', $path, PHP_EOL );
+        $content .= sprintf( 'Disallow: %s/*/wp-includes/%s', $path, PHP_EOL );
+        
+        return $content;
+    }
+   
+    private static function is_base_site() {
+        global $current_site, $current_blog;
+        
+        if( $current_site->path == $current_blog->path )
+            return true;
+        
+        return false;
+    }
+    
 }
 
 add_action( 'plugins_loaded', array( 'RRZE_Robots_Txt', 'init' ) );
