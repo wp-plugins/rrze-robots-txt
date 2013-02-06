@@ -1,12 +1,12 @@
 === RRZE-Robots-Txt ===
 Contributors: rvdforst
 Tags: robots, privacy
-Requires at least: 3.4
-Tested up to: 3.4
-Stable tag: 1.2
+Requires at least: 3.5
+Tested up to: 3.5.1
+Stable tag: 1.3
 License: GPLv2 or later
 
-Ermöglich die Bearbeitung des robots.txt Inhalts um weitere Direktiven hinzuzufügen.
+Ermöglich die Bearbeitung des robots.txt Inhalts um weitere Direktiven hinzuzufügen. Multisite kompatibel.
 
 
 
@@ -18,9 +18,14 @@ Für Webauftritte auf Basis WordPress der robots.txt Inhalt wird dynamisch erzeu
 
 Das RRZE-Robots-Txt Plugin ermöglich die Bearbeitung des robots.txt Inhalts um weitere Direktiven hinzuzufügen.
 
+Multisite kompatibel.
+
 
 
 == Changelog ==
+
+= 1.3 =
+* Wordpress 3.5 kompatibel 
 
 = 1.2 =
 * Multisite mit Unterordner kompatibel 

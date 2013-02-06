@@ -2,7 +2,7 @@
 /**
  * Plugin Name: RRZE-Robots-Txt
  * Description: Ermöglich die Bearbeitung der robots.txt Inhalt um weitere Direktiven hinzuzufügen.
- * Version: 1.2
+ * Version: 1.3
  * Author: rvdforst
  * Author URI: http://blogs.fau.de/webworking/
  * License: GPLv2 or later
@@ -24,9 +24,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+add_action( 'plugins_loaded', array( 'RRZE_Robots_Txt', 'init' ) );
+
+register_activation_hook( __FILE__, array( 'RRZE_Robots_Txt', 'activation' ) );
+
 class RRZE_Robots_Txt {
 
-    const version = '1.2'; // Plugin-Version
+    const version = '1.3'; // Plugin-Version
     
     const option_name = '_rrze_robots_txt';
 
@@ -36,7 +40,7 @@ class RRZE_Robots_Txt {
     
     const php_version = '5.2.4'; // Minimal erforderliche PHP-Version
     
-    const wp_version = '3.4.1'; // Minimal erforderliche WordPress-Version
+    const wp_version = '3.5'; // Minimal erforderliche WordPress-Version
     
     public static function init() {
         
@@ -63,28 +67,16 @@ class RRZE_Robots_Txt {
         
         update_option( self::version_option_name , self::version );
     }
-    
-    public static function deactivation() {
         
-    }
-    
-    public static function uninstall() {
-        if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) || ( __FILE__ != WP_UNINSTALL_PLUGIN ) )
-            return;
-        
-        delete_option( self::option_name );
-        delete_option( self::version_option_name );
-    }
-    
     public static function version_compare() {
         $error = '';
         
         if ( version_compare( PHP_VERSION, self::php_version, '<' ) ) {
-            $error = sprintf( __('Ihre PHP-Version %s ist veraltet. Bitte aktualisieren Sie mindestens auf die PHP-Version %s.', self::textdomain ), PHP_VERSION, self::php_version );
+            $error = sprintf( __( 'Ihre PHP-Version %s ist veraltet. Bitte aktualisieren Sie mindestens auf die PHP-Version %s.', self::textdomain ), PHP_VERSION, self::php_version );
         }
 
         if ( version_compare( $GLOBALS['wp_version'], self::wp_version, '<' ) ) {
-            $error = sprintf( __('Ihre Wordpress-Version %s ist veraltet. Bitte aktualisieren Sie mindestens auf die Wordpress-Version %s.', self::textdomain ), $GLOBALS['wp_version'], self::wp_version );
+            $error = sprintf( __( 'Ihre Wordpress-Version %s ist veraltet. Bitte aktualisieren Sie mindestens auf die Wordpress-Version %s.', self::textdomain ), $GLOBALS['wp_version'], self::wp_version );
         }
 
         if( ! empty( $error ) ) {
@@ -109,7 +101,7 @@ class RRZE_Robots_Txt {
         $options = array_intersect_key( $options, $defaults );
 
         if( !empty( $key ) )
-            return isset($options[$key]) ? $options[$key] : null;
+            return isset( $options[$key] ) ? $options[$key] : null;
 
         return $options;
     }
@@ -120,8 +112,8 @@ class RRZE_Robots_Txt {
     }
     
     public function settings_init() {
-        register_setting( 'privacy', self::option_name, array( __CLASS__, 'options_validate' ) );
-        add_settings_field( self::option_name, __( 'Inhalt der Datei robots.txt', self::textdomain ), array( __CLASS__, 'field_robots_txt_callback' ), 'privacy', 'default', array( 'label_for' => 'robots_txt' ) );
+        register_setting( 'reading', self::option_name, array( __CLASS__, 'options_validate' ) );
+        add_settings_field( self::option_name, __( 'Inhalt der Datei robots.txt', self::textdomain ), array( __CLASS__, 'field_robots_txt_callback' ), 'reading', 'default', array( 'label_for' => 'robots_txt' ) );
     }
     
     public function field_robots_txt_callback() {
@@ -153,22 +145,37 @@ class RRZE_Robots_Txt {
     }
     
     public static function robots_txt_filter( $robots_txt, $public ) {
+        global $wpdb;
+                
         $content = rtrim( self::get_options( 'content' ) );
-        if( ! empty( $content ) && $public != 0 ) {
+        
+        if( ! empty( $content ) && $public != 0 )
             $robots_txt = esc_attr( strip_tags( $content ) );
+        
+        if( is_multisite() && ! is_subdomain_install() ) {
+            $site_path = rtrim( parse_url( network_site_url(), PHP_URL_PATH ), '/' );
+            if( empty( $site_path ) )
+                $site_path = '';
+            
+            $robots_txt .= PHP_EOL;
+            $blogs = $wpdb->get_results( $wpdb->prepare( "SELECT path FROM {$wpdb->blogs} WHERE site_id = %d AND public = '0' AND archived = '0' AND mature = '0' AND spam = '0' AND deleted = '0' ORDER BY path ASC", $wpdb->siteid ) );        
+            foreach( $blogs as $blog ) {
+                $robots_txt .= sprintf( 'Disallow: %s%s%s', $site_path, $blog->path, PHP_EOL );
+            }
         }
+        
         return $robots_txt;        
     }
     
     private static function default_site_content( ) {
         $content = sprintf( 'User-agent: *%s', PHP_EOL );
         
-        $path = rtrim( parse_url( site_url(), PHP_URL_PATH ), '/' );
-        if( empty( $path ) )
-            $path = '';
+        $site_path = rtrim( parse_url( site_url(), PHP_URL_PATH ), '/' );
+        if( empty( $site_path ) )
+            $site_path = '';
         
-        $content .= sprintf( 'Disallow: %s/wp-admin/%s', $path, PHP_EOL );
-        $content .= sprintf( 'Disallow: %s/wp-includes/%s', $path, PHP_EOL );
+        $content .= sprintf( 'Disallow: %s/wp-admin/%s', $site_path, PHP_EOL );
+        $content .= sprintf( 'Disallow: %s/wp-includes/%s', $site_path, PHP_EOL );
         
         return $content;
     }
@@ -176,18 +183,18 @@ class RRZE_Robots_Txt {
     private static function default_network_content( ) {
         $content = sprintf( 'User-agent: *%s', PHP_EOL );
         
-        $path = rtrim( parse_url( network_site_url(), PHP_URL_PATH ), '/' );
-        if( empty( $path ) )
-            $path = '';
+        $site_path = rtrim( parse_url( network_site_url(), PHP_URL_PATH ), '/' );
+        if( empty( $site_path ) )
+            $site_path = '';
         
-        $content .= sprintf( 'Disallow: %s/wp-admin/%s', $path, PHP_EOL );
-        $content .= sprintf( 'Disallow: %s/wp-includes/%s', $path, PHP_EOL );
-        $content .= sprintf( 'Disallow: %s/*/wp-admin/%s', $path, PHP_EOL );
-        $content .= sprintf( 'Disallow: %s/*/wp-includes/%s', $path, PHP_EOL );
-        
+        $content .= sprintf( 'Disallow: %s/wp-admin/%s', $site_path, PHP_EOL );
+        $content .= sprintf( 'Disallow: %s/wp-includes/%s', $site_path, PHP_EOL );
+        $content .= sprintf( 'Disallow: %s/*/wp-admin/%s', $site_path, PHP_EOL );
+        $content .= sprintf( 'Disallow: %s/*/wp-includes/%s', $site_path, PHP_EOL );
+                
         return $content;
     }
-   
+    
     private static function is_base_site() {
         global $current_site, $current_blog;
         
@@ -198,11 +205,3 @@ class RRZE_Robots_Txt {
     }
     
 }
-
-add_action( 'plugins_loaded', array( 'RRZE_Robots_Txt', 'init' ) );
-
-register_activation_hook( __FILE__, array( 'RRZE_Robots_Txt', 'activation' ) );
-
-register_deactivation_hook( __FILE__, array( 'RRZE_Robots_Txt', 'deactivation' ) );
-
-register_uninstall_hook( __FILE__, array( 'RRZE_Robots_Txt', 'uninstall' ) );
